@@ -72,7 +72,7 @@ public class Obstacles {
         Array<TextureRegion> fireFrames = new Array<>(7);
 
         int frameSize = 16;
-        int startCol = 5;
+        int startCol = 4;
         int row = 3;
 
         for (int col = startCol; col < startCol + 7; col++) {

@@ -71,8 +71,8 @@ public class Obstacles {
         Texture fireSheet = new Texture(Gdx.files.internal(OBJECT_TEXTURE_PATH));
         Array<TextureRegion> fireFrames = new Array<>(7);
 
-        int frameSize = 10;
-        int startCol = 4;
+        int frameSize = 12;
+        int startCol = 5;
         int row = 3;
 
         for (int col = startCol; col < startCol + 7; col++) {

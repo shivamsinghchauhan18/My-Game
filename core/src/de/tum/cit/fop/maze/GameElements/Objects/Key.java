@@ -1,4 +1,4 @@
-package core.GameElements.Objects;
+package de.tum.cit.fop.maze.GameElements.Objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

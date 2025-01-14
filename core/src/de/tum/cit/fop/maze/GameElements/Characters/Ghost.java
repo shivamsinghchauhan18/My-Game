@@ -1,4 +1,4 @@
-package core.GameElements.Characters;
+package de.tum.cit.fop.maze.GameElements.Characters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -53,5 +53,9 @@ public class Ghost {
      */
     public Animation<TextureRegion> getGhostDownAnimation() {
         return ghostDownAnimation;
+    }
+
+    public void setGhostDownAnimation(Animation<TextureRegion> ghostDownAnimation) {
+        this.ghostDownAnimation = ghostDownAnimation;
     }
 }

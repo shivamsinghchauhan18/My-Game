@@ -1,12 +1,16 @@
-package core.GameElements.Characters;
+package de.tum.cit.fop.maze.GameElements.Characters;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import de.tum.cit.ase.maze.Direction;
-import de.tum.cit.ase.maze.MapLoader;
-import de.tum.cit.ase.maze.Utils;
+import com.badlogic.gdx.utils.Array;
+import de.tum.cit.fop.maze.Direction;
+import de.tum.cit.fop.maze.MapLoader;
+import de.tum.cit.fop.maze.Utils;
+//import de.tum.cit.fop.maze.Characters.Player;
 
 import java.util.Random;
 
@@ -24,17 +28,8 @@ public class Chaser {
     private final Random random; // For random movement behavior
 
     // Animation properties
-    private void loadChaserAnimation() {
-        Texture chaserSheet = new Texture(Gdx.files.internal("assets/character-male-d.png"));
-        Array<TextureRegion> frames = new Array<>(4);
-
-        // Assuming the frames are in the first row of the sprite sheet
-        for (int i = 0; i < 4; i++) {
-            frames.add(new TextureRegion(chaserSheet, i * 32, 0, 32, 32)); // Adjust frame size
-        }
-
-        chaserAnimation = new Animation<>(0.1f, frames, Animation.PlayMode.LOOP);
-    }
+    private Animation<TextureRegion> chaserAnimation; // Animation for the Chaser
+    private float animationTime = 0f; // Keeps track of animation progress
 
     // Targeting behavior
     private static final float CHASE_RADIUS = 5.0f; // Distance within which the Chaser targets the player
@@ -43,22 +38,36 @@ public class Chaser {
     /**
      * Constructs a Chaser object with specified initial position, speed, map context, and player reference.
      *
-     * @param x          The initial x-coordinate of the Chaser.
-     * @param y          The initial y-coordinate of the Chaser.
-     * @param speed      The movement speed of the Chaser.
-     * @param mapLoader  The MapLoader instance for validating movement within the map.
-     * @param player     The Player instance to target during gameplay.
-     * @param animation  The animation to represent the Chaser visually.
+     * @param x         The initial x-coordinate of the Chaser.
+     * @param y         The initial y-coordinate of the Chaser.
+     * @param speed     The movement speed of the Chaser.
+     * @param mapLoader The MapLoader instance for validating movement within the map.
+     * @param player    The Player instance to target during gameplay.
      */
-    public Chaser(float x, float y, float speed, MapLoader mapLoader, Player player, Animation<TextureRegion> animation) {
+    public Chaser(float x, float y, float speed, MapLoader mapLoader, Player player) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.mapLoader = mapLoader;
         this.player = player;
-        this.chaserAnimation = animation;
         this.random = new Random();
         this.direction = Direction.getRandomDirection(); // Start with a random direction
+        loadChaserAnimation(); // Initialize the animation
+    }
+
+    /**
+     * Loads the Chaser's animation from a sprite sheet.
+     */
+    private void loadChaserAnimation() {
+        Texture chaserSheet = new Texture(Gdx.files.internal("assets/character-male-d.png"));
+        Array<TextureRegion> frames = new Array<>();
+
+        // Assuming the frames are in the first row of the sprite sheet
+        for (int i = 0; i < 4; i++) {
+            frames.add(new TextureRegion(chaserSheet, i * 32, 0, 32, 32)); // Adjust frame size as per sprite sheet
+        }
+
+        chaserAnimation = new Animation<>(0.1f, frames, Animation.PlayMode.LOOP);
     }
 
     /**
@@ -87,7 +96,7 @@ public class Chaser {
      * @param deltaTime The time elapsed since the last frame.
      */
     private void randomMovement(float deltaTime) {
-        if (Utils.canCharacterMove(x, y, direction, mapLoader, false)) {
+        if (Utils.canCharacterMove(x, y, direction, mapLoader, false)) { // Enemies don't have keys
             moveStraight(deltaTime);
         } else {
             direction = Direction.getRandomDirection();
@@ -111,7 +120,7 @@ public class Chaser {
             direction = Direction.DOWN;
         }
 
-        if (Utils.canCharacterMove(x, y, direction, mapLoader, false)) {
+        if (Utils.canCharacterMove(x, y, direction, mapLoader,false)) {
             moveStraight(deltaTime);
         } else {
             direction = Direction.getRandomDirection(); // Switch to a random direction if blocked
@@ -161,5 +170,53 @@ public class Chaser {
      */
     public float getY() {
         return y;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public MapLoader getMapLoader() {
+        return mapLoader;
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public Animation<TextureRegion> getChaserAnimation() {
+        return chaserAnimation;
+    }
+
+    public void setChaserAnimation(Animation<TextureRegion> chaserAnimation) {
+        this.chaserAnimation = chaserAnimation;
+    }
+
+    public float getAnimationTime() {
+        return animationTime;
+    }
+
+    public void setAnimationTime(float animationTime) {
+        this.animationTime = animationTime;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

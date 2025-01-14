@@ -1,10 +1,11 @@
-package core.GameElements.Characters;
+package de.tum.cit.fop.maze.GameElements.Characters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
+import de.tum.cit.fop.maze.Direction;
 
 /**
  * Represents the player character in the MazeRunnerGame.
@@ -190,7 +191,7 @@ public class Player {
         this.y = y;
     }
 
-    public boolean hasKey() {
+    public boolean getHasKey() {
         return hasKey;
     }
 
@@ -212,5 +213,79 @@ public class Player {
 
     public void setHeartCount(int heartCount) {
         this.heartCount = heartCount;
+    }
+
+    public void setCharacterDownAnimation(Animation<TextureRegion> characterDownAnimation) {
+        this.characterDownAnimation = characterDownAnimation;
+    }
+
+    public void setCharacterRightAnimation(Animation<TextureRegion> characterRightAnimation) {
+        this.characterRightAnimation = characterRightAnimation;
+    }
+
+    public void setCharacterUpAnimation(Animation<TextureRegion> characterUpAnimation) {
+        this.characterUpAnimation = characterUpAnimation;
+    }
+
+    public void setCharacterLeftAnimation(Animation<TextureRegion> characterLeftAnimation) {
+        this.characterLeftAnimation = characterLeftAnimation;
+    }
+
+    public void setCharacterDown(TextureRegion characterDown) {
+        this.characterDown = characterDown;
+    }
+
+    public void setCharacterRight(TextureRegion characterRight) {
+        this.characterRight = characterRight;
+    }
+
+    public void setCharacterUp(TextureRegion characterUp) {
+        this.characterUp = characterUp;
+    }
+
+    public void setCharacterLeft(TextureRegion characterLeft) {
+        this.characterLeft = characterLeft;
+    }
+
+    public void setAnimating(boolean animating) {
+        isAnimating = animating;
+    }
+
+    public float getAnimationTime() {
+        return animationTime;
+    }
+
+    public void setAnimationTime(float animationTime) {
+        this.animationTime = animationTime;
+    }
+
+    public Animation<TextureRegion> getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    public void setCurrentAnimation(Animation<TextureRegion> currentAnimation) {
+        this.currentAnimation = currentAnimation;
+    }
+
+    public boolean isHasKey() {
+        return hasKey;
+    }
+
+    public Animation<TextureRegion> getAnimationForDirection(Direction direction) {
+        return switch (direction) {
+            case UP -> getCharacterUpAnimation();
+            case DOWN -> getCharacterDownAnimation();
+            case LEFT -> getCharacterLeftAnimation();
+            case RIGHT -> getCharacterRightAnimation();
+        };
+    }
+
+    public TextureRegion getFrameForDirection(Direction direction) {
+        return switch (direction) {
+            case UP -> getCharacterUp();
+            case DOWN -> getCharacterDown();
+            case LEFT -> getCharacterLeft();
+            case RIGHT -> getCharacterRight();
+        };
     }
 }

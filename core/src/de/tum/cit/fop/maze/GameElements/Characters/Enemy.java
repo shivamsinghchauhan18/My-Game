@@ -1,11 +1,11 @@
-package core.GameElements.Characters;
+package de.tum.cit.fop.maze.GameElements.Characters;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import de.tum.cit.ase.maze.Direction;
-import de.tum.cit.ase.maze.MapLoader;
-import de.tum.cit.ase.maze.Utils;
+import de.tum.cit.fop.maze.Direction;
+import de.tum.cit.fop.maze.MapLoader;
+import de.tum.cit.fop.maze.Utils;
 
 /**
  * Represents an enemy character in the MazeRunnerGame.
@@ -20,6 +20,22 @@ public class Enemy {
 
     // Dependencies
     private final MapLoader mapLoader; // Map context to determine valid movement
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public MapLoader getMapLoader() {
+        return mapLoader;
+    }
 
     /**
      * Constructs an Enemy object with specified position, speed, direction, and map context.

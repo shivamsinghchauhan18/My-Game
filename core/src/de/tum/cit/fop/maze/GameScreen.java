@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.ScreenUtils;
+import de.tum.cit.fop.maze.GameElements.Screens.EscapeMenuScreen;
 
 
 /**
@@ -17,16 +18,20 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private final BitmapFont font;
+    private String mapFilePath;
+    private boolean isPaused = false;
 
     private float sinusInput = 0f;
+    private static final float CAMERA_ZOOM = 0.75f;
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
      *
      * @param game The main game class, used to access global resources and methods.
      */
-    public GameScreen(MazeRunnerGame game) {
+    public GameScreen(MazeRunnerGame game, String mapFilePath) {
         this.game = game;
+        this.mapFilePath = mapFilePath;
 
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
@@ -82,10 +87,14 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
+        isPaused = true;
+        game.setScreen(new EscapeMenuScreen(game, this));
     }
 
     @Override
     public void resume() {
+        isPaused = false;
+        game.setScreen(this);
     }
 
     @Override
@@ -99,7 +108,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        font.dispose();
     }
+
 
     // Additional methods and logic can be added as needed for the game screen
 }

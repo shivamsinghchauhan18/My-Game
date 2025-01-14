@@ -9,9 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
-import de.tum.cit.fop.maze.GameElements.Screens.LoseScreen;
-import de.tum.cit.fop.maze.GameElements.Screens.MapScreen;
-import de.tum.cit.fop.maze.GameElements.Screens.WinScreen;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
 /**
@@ -22,43 +19,6 @@ public class MazeRunnerGame extends Game {
     // Screens
     private MenuScreen menuScreen;
     private GameScreen gameScreen;
-    private String mapFilePath;
-
-    public MenuScreen getMenuScreen() {
-        return menuScreen;
-    }
-
-    public void setMenuScreen(MenuScreen menuScreen) {
-        this.menuScreen = menuScreen;
-    }
-
-    public GameScreen getGameScreen() {
-        return gameScreen;
-    }
-
-    public void setGameScreen(GameScreen gameScreen) {
-        this.gameScreen = gameScreen;
-    }
-
-    public String getMapFilePath() {
-        return mapFilePath;
-    }
-
-    public void setMapFilePath(String mapFilePath) {
-        this.mapFilePath = mapFilePath;
-    }
-
-    public void setSpriteBatch(SpriteBatch spriteBatch) {
-        this.spriteBatch = spriteBatch;
-    }
-
-    public void setSkin(Skin skin) {
-        this.skin = skin;
-    }
-
-    public void setCharacterDownAnimation(Animation<TextureRegion> characterDownAnimation) {
-        this.characterDownAnimation = characterDownAnimation;
-    }
 
     // Sprite Batch for rendering
     private SpriteBatch spriteBatch;
@@ -111,7 +71,7 @@ public class MazeRunnerGame extends Game {
      * Switches to the game screen.
      */
     public void goToGame() {
-        this.setScreen(new GameScreen(this, mapFilePath)); // Set the current screen to GameScreen
+        this.setScreen(new GameScreen(this)); // Set the current screen to GameScreen
         if (menuScreen != null) {
             menuScreen.dispose(); // Dispose the menu screen if it exists
             menuScreen = null;
@@ -161,29 +121,5 @@ public class MazeRunnerGame extends Game {
 
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
-    }
-
-    public void goToWinScreen() {
-        // Dispose of the current screen if necessary
-        if (getScreen() != null) {
-            getScreen().dispose();
-        }
-
-        // Set the screen to the WinScreen
-        setScreen(new WinScreen(this));
-    }
-
-    public void goToLoseScreen() {
-        // Dispose of the current screen if necessary
-        if (getScreen() != null) {
-            getScreen().dispose();
-        }
-
-        // Set the screen to the LoseScreen
-        setScreen(new LoseScreen(this));
-    }
-
-    public void goToSelectMap() {
-        setScreen(new MapScreen(this)); // Create and set the SelectMapScreen
     }
 }

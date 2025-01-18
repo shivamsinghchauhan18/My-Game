@@ -18,6 +18,7 @@ public class GameScreen implements Screen {
     private final BitmapFont font;
 
     private float sinusInput = 0f;
+    public static boolean resumed = false;
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -98,6 +99,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+    }
+
+    public static boolean isResumed() {
+        return resumed;
     }
 
     // Additional methods and logic can be added as needed for the game screen

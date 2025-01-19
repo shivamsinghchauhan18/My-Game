@@ -9,15 +9,20 @@ public abstract class Character extends GameObject {
     public enum Direction {
         UP, DOWN, LEFT, RIGHT
     }
+    protected int rectWidth;
+    protected int rectHeight;
+
+
 
     private Direction direction;
-    private Animation<TextureRegion> leftAnimation;
-    private Animation<TextureRegion> rightAnimation;
-    private Animation<TextureRegion> upAnimation;
-    private Animation<TextureRegion> downAnimation;
+    protected Animation<TextureRegion> leftAnimation;
+    protected Animation<TextureRegion> rightAnimation;
+    protected Animation<TextureRegion> upAnimation;
+    protected Animation<TextureRegion> downAnimation;
 
-    private float prevX;
-    private float prevY;
+    protected float prevX;
+    protected float prevY;
+    protected float sinusInput;
 
     public Character(float x, float y, int rectWidth, int rectHeight) {
         super(x, y, rectWidth, rectHeight);

@@ -1,7 +1,5 @@
 package de.tum.cit.fop.maze;
 
-
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -12,11 +10,11 @@ import com.badlogic.gdx.utils.Array;
 
 
 public class GameObject {
-    private float x;
-    private float y;
+    protected float x;
+    protected float y;
     private final Rectangle boundingBox;
-    private Animation<TextureRegion> animation;
-    private float animationTime = 0f;
+    public Animation<TextureRegion> animation;
+    protected float animationTime = 0f;
 
 
     public GameObject(float x, float y, int rectWidth, int rectHeight) {
@@ -25,8 +23,9 @@ public class GameObject {
         this.boundingBox = new Rectangle(x, y, rectWidth, rectHeight);
     }
 
-    public void loadHorizontalAnimation(String path, int startX, int startY, int frameWidth, int frameHeight, int frameCount, float duration) {
+    public Animation<TextureRegion> loadHorizontalAnimation(String path, int startX, int startY, int frameWidth, int frameHeight, int frameCount, float duration) {
         animation = createAnimation(path, startX, startY, frameWidth, frameHeight, frameCount, duration, true);
+        return null;
     }
 
 
@@ -98,5 +97,8 @@ public class GameObject {
         this.y = y;
         this.boundingBox.y = y;
     }
-}
 
+    public Animation<TextureRegion> getAnimation() {
+        return animation;
+    }
+}

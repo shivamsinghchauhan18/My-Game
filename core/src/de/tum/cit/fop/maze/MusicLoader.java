@@ -1,3 +1,4 @@
+
 package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
@@ -8,54 +9,95 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles loading and managing audio resources for the MazeRunnerGame.
- * Manages background music, event sounds, and volume control.
+ * The MusicLoader class is responsible for loading and managing music and sound resources in the MazeRunnerGame.
  */
 public class MusicLoader {
     private Music menuMusic;
-    private Music currentGameMusic;
+    private Music gameMusic1;
+    private Music gameMusic2;
+    private Music gameMusic3;
+    private Music gameMusic4;
+    private Music gameMusic5;
     private Music winningMusic;
     private Music losingMusic;
+    private Music currentGameMusic;
     private Music lifeLostMusic;
     private Music coinCollected;
     private Music walkingSound;
-    private List<Music> gameMusicList;
-    private boolean menuMusicDisabled;
-    private boolean gameMusicDisabled;
-    private boolean soundEffectsDisabled;
-    private int lastGameMusicIndex;
+    private boolean forbiddenMenu;
+    private boolean forbiddenGame;
+    private int prevIndex;
+    private List<Music> musicList;
+    private de.tum.cit.fop.maze.MazeRunnerGame game;
+    private boolean gameSoundsForbidden;
 
 
+    /**
+     * Constructs a new MusicLoader instance with the default state.
+     */
     public MusicLoader() {
-        this.gameMusicList = new ArrayList<>();
-        this.menuMusicDisabled = false;
-        this.gameMusicDisabled = false;
-        this.soundEffectsDisabled = false;
-        this.lastGameMusicIndex = -1;
-    }
 
-    public void loadMusic() {
-        menuMusic = loadMusicFile("audio/menu.mp3", true);
-        winningMusic = loadMusicFile("audio/winning.mp3", false);
-        losingMusic = loadMusicFile("audio/losing.mp3", false);
-        lifeLostMusic = loadMusicFile("audio/life_lost.ogg", false);
-        coinCollected = loadMusicFile("audio/coin_collected.ogg", false);
-        walkingSound = loadMusicFile("audio/walking.mp3", false);
-
-    }
-
-    private Music loadMusicFile(String filePath, boolean loop) {
-        Music music = Gdx.audio.newMusic(Gdx.files.internal(filePath));
-        music.setLooping(loop);
-        return music;
     }
     /**
-     * Plays the menu music if it's enabled.
+     * Loads music and sound resources for the MazeRunnerGame.
+     *
+     * @param game The MazeRunnerGame instance.
+     */
+    public void loadMusic(de.tum.cit.fop.maze.MazeRunnerGame game) {
+        this.game = game;
+        forbiddenMenu = false;
+        forbiddenGame = false;
+        gameSoundsForbidden = false;
+        prevIndex = -1;
+        musicList = new ArrayList<>();
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("BG.mp3"));
+        menuMusic.setLooping(true);
+        gameMusic1 = Gdx.audio.newMusic(Gdx.files.internal("Ingame.wav"));
+        gameMusic1.setLooping(true);
+        gameMusic2 = Gdx.audio.newMusic(Gdx.files.internal("Ingame.wav"));
+        gameMusic2.setLooping(true);
+        gameMusic3 = Gdx.audio.newMusic(Gdx.files.internal("Ingame.wav"));
+        gameMusic3.setLooping(true);
+        gameMusic4 = Gdx.audio.newMusic(Gdx.files.internal("Ingame.wav"));
+        gameMusic4.setLooping(true);
+        gameMusic5 = Gdx.audio.newMusic(Gdx.files.internal("Ingame.wav"));
+        gameMusic5.setLooping(true);
+        winningMusic = Gdx.audio.newMusic(Gdx.files.internal("Winning.mp3"));
+        winningMusic.setLooping(true);
+        losingMusic = Gdx.audio.newMusic(Gdx.files.internal("Losing sound.mp3"));
+        losingMusic.setLooping(true);
+        walkingSound = Gdx.audio.newMusic(Gdx.files.internal("grasssound.mp3"));
+        walkingSound.setLooping(false);
+        lifeLostMusic = Gdx.audio.newMusic(Gdx.files.internal("hurt.ogg"));
+        lifeLostMusic.setLooping(false);
+        coinCollected = Gdx.audio.newMusic(Gdx.files.internal("coin.ogg"));
+        coinCollected.setLooping(false);
+        musicList.add(gameMusic1);
+        musicList.add(gameMusic2);
+        musicList.add(gameMusic3);
+        musicList.add(gameMusic4);
+        musicList.add(gameMusic5);
+    }
+
+    /**
+     * Plays the menu music.
      */
     public void playMenuMusic() {
-        if (!menuMusicDisabled) {
-            menuMusic.play();
-        }
+        menuMusic.play();
+    }
+
+    /**
+     * Plays the game music.
+     */
+    public void playGameMusic() {
+        currentGameMusic.play();
+    }
+
+    /**
+     * Pauses the menu music.
+     */
+    public void pauseMenuMusic() {
+        menuMusic.pause();
     }
 
     /**
@@ -65,103 +107,146 @@ public class MusicLoader {
         menuMusic.stop();
     }
 
+    /**
+     * Stops the game music.
+     */
+    public void stopGameMusic() {
+        currentGameMusic.stop();
+    }
+
+    /**
+     * Pauses the game music.
+     */
+    public void pauseGameMusic() {
+        currentGameMusic.pause();
+    }
 
     /**
      * Plays the winning music.
      */
     public void playWinningMusic() {
-        if (!gameMusicDisabled) {
-            winningMusic.play();
-        }
+        winningMusic.play();
     }
 
+    /**
+     * Stops the winning music.
+     */
+    public void stopWinningMusic() {
+        winningMusic.stop();
+    }
     /**
      * Plays the losing music.
      */
     public void playLosingMusic() {
-        if (!gameMusicDisabled) {
-            losingMusic.play();
-        }
-    }
-    /**
-     * Adjusts the volume for all music tracks.
-     */
-    public void setVolume(float volume) {
-        volume = MathUtils.clamp(volume, 0, 1);
-        menuMusic.setVolume(volume);
-        float finalVolume = volume;
-        gameMusicList.forEach(music -> music.setVolume(finalVolume));
-        winningMusic.setVolume(volume);
-        losingMusic.setVolume(volume);
-        lifeLostMusic.setVolume(volume);
-        coinCollected.setVolume(volume);
-        walkingSound.setVolume(volume);
+        losingMusic.play();
     }
 
     /**
-     * Increases the volume by a fixed step.
+     * Stops the losing music.
      */
-    public void increaseVolume() {
-        setVolume(menuMusic.getVolume() + 0.1f);
+    public void stopLosingMusic() {
+        losingMusic.stop();
     }
 
     /**
-     * Decreases the volume by a fixed step.
+     * Gets the currentMusic instance randomly in the musicList which contains five different game musics.
      */
-    public void decreaseVolume() {
-        setVolume(menuMusic.getVolume() - 0.1f);
-    }
-    /**
-     * Plays the sound for losing a life.
-     */
-    public void playLifeLostSound() {
-        if (!soundEffectsDisabled) {
-            lifeLostMusic.play();
+    public void getCurrentMusic() {
+        int index = MathUtils.random(0,3);
+        while(index == prevIndex){
+            index = MathUtils.random(0,3);
         }
+        prevIndex=index;
+        currentGameMusic = musicList.get(index);
     }
 
     /**
-     * Plays the sound for collecting a coin.
+     * Plays the life lost sound.
      */
-    public void playCoinCollectedSound() {
-        if (!soundEffectsDisabled) {
-            coinCollected.play();
-        }
+    public void lifeLostSoundPlay() {
+        lifeLostMusic.play();
     }
 
     /**
      * Plays the walking sound.
      */
-    public void playWalkingSound() {
-        if (!soundEffectsDisabled) {
-            walkingSound.play();
+    public void walkingSoundPlay() {
+        walkingSound.play();
+    }
+
+    /**
+     * Plays the coin collected sound.
+     */
+    public void  coinCollectedSoundPlay() {
+        coinCollected.play();
+    }
+
+    /**
+     * Increases the volume of every music and sound.
+     */
+    public void volumeUp() {
+        if (menuMusic.getVolume() <1) {
+            menuMusic.setVolume(menuMusic.getVolume() + 0.1f);
+            currentGameMusic.setVolume(currentGameMusic.getVolume() + 0.1f);
+            coinCollected.setVolume(coinCollected.getVolume() + 0.5f);
+            walkingSound.setVolume(walkingSound.getVolume() + 0.1f);
+            lifeLostMusic.setVolume(lifeLostMusic.getVolume() + 0.1f);
         }
     }
 
-    // Setters for disabling/enabling audio
-    public void setMenuMusicDisabled(boolean disabled) {
-        this.menuMusicDisabled = disabled;
-    }
-
-    public void setGameMusicDisabled(boolean disabled) {
-        this.gameMusicDisabled = disabled;
-    }
-
-    public void setSoundEffectsDisabled(boolean disabled) {
-        this.soundEffectsDisabled = disabled;
-    }
     /**
-     * Releases all audio resources to prevent memory leaks.
+     * Decreases the volume of every music and sound.
      */
-    public void dispose() {
-        menuMusic.dispose();
-        winningMusic.dispose();
-        losingMusic.dispose();
-        lifeLostMusic.dispose();
-        coinCollected.dispose();
-        walkingSound.dispose();
-        gameMusicList.forEach(Music::dispose);
+    public void volumeDown() {
+        if (menuMusic.getVolume() > 0.1) {
+            menuMusic.setVolume(menuMusic.getVolume() - 0.1f);
+            currentGameMusic.setVolume(currentGameMusic.getVolume() - 0.1f);
+            coinCollected.setVolume(coinCollected.getVolume() - 0.1f);
+            walkingSound.setVolume(walkingSound.getVolume() - 0.1f);
+            lifeLostMusic.setVolume(lifeLostMusic.getVolume() - 0.1f);
+        }
+    }
+
+    /**
+     * Sets the volume of every music and sound to 0.5.
+     */
+    public void setVolumes() {
+        menuMusic.setVolume(0.5f);
+        gameMusic1.setVolume(0.5f);
+        gameMusic2.setVolume(0.5f);
+        gameMusic3.setVolume(0.5f);
+        gameMusic4.setVolume(0.5f);
+        gameMusic5.setVolume(0.5f);
+        coinCollected.setVolume(0.5f);
+        walkingSound.setVolume(0.5f);
+        lifeLostMusic.setVolume(0.5f);
+    }
+
+    public boolean isForbiddenMenu() {
+        return forbiddenMenu;
+    }
+
+    public void setForbiddenMenu(boolean forbiddenMenu) {
+        this.forbiddenMenu = forbiddenMenu;
+    }
+
+    public boolean isForbiddenGame() {
+        return forbiddenGame;
+    }
+
+    public void setForbiddenGame(boolean forbiddenGame) {
+        this.forbiddenGame = forbiddenGame;
+    }
+
+    public boolean isGameSoundsForbidden() {
+        return gameSoundsForbidden;
+    }
+
+    public void setGameSoundsForbidden(boolean gameSoundsForbidden) {
+        this.gameSoundsForbidden = gameSoundsForbidden;
+    }
+
+    public Music getMenuMusic() {
+        return menuMusic;
     }
 }
-
-

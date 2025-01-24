@@ -50,6 +50,7 @@ public class MazeRunnerGame extends Game{
     private OrthographicCamera camera;
     private long startTime;
 
+
     /**
      * Constructor for MazeRunnerGame.
      *
@@ -95,11 +96,12 @@ public class MazeRunnerGame extends Game{
      */
     @Override
     public void create() {
-        AssetManager assetManager = new AssetManager();
+        assetManager = new AssetManager();
         // Load essential assets here (e.g., UI skin, textures)
         assetManager.load("assets/Gameover.jpeg", Texture.class);
         assetManager.load("craft/craftacular-ui.json", Skin.class);
-        assetManager.load("objects.png", Texture.class); // Load the objects texture
+        assetManager.load("objects.png", Texture.class);// Load the objects texture
+        assetManager.load("character.png", Texture.class);
         // Optionally load other assets asynchronously
         assetManager.finishLoading(); // Ensure assets are loaded before use
         spriteBatch = new SpriteBatch();
@@ -127,7 +129,7 @@ public class MazeRunnerGame extends Game{
             musicLoader.playMenuMusic();
         }
         createMaze();
-        this.hero = new Hero(0,0);
+        this.hero = new Hero(0,0, this);
         mazeLoader.createObjects();
         this.allTiles = new Tiles();
         this.languages = new de.tum.cit.fop.maze.Languages();
@@ -146,11 +148,22 @@ public class MazeRunnerGame extends Game{
      * Switches to the menu screen.
      */
     public void goToMenu() {
-        this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
+        if (!(getScreen() instanceof MenuScreen)) {
+            this.setScreen(getOrCreateMenuScreen()); // Use a helper method to get or create the MenuScreen
+        }
+
+        // Dispose of the GameScreen if it exists
         if (gameScreen != null) {
-            gameScreen.dispose(); // Dispose the game screen if it exists
+            gameScreen.dispose();
             gameScreen = null;
         }
+    }
+
+    private MenuScreen getOrCreateMenuScreen() {
+        if (menuScreen == null) {
+            menuScreen = new MenuScreen(this); // Create MenuScreen only if it doesn't already exist
+        }
+        return menuScreen;
     }
     /**
      * Switches to the game screen.
@@ -179,7 +192,7 @@ public class MazeRunnerGame extends Game{
 
     public void startGame() {
         startTime = System.currentTimeMillis();
-        hero = new Hero(100, 100); // Example position
+        hero = new Hero(100, 100, this); // Example position
         key = new Key(300, 300); // Example position
     }
 

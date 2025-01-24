@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class Hero extends Character {
@@ -22,6 +23,7 @@ public class Hero extends Character {
     private final Animation<TextureRegion> danceAnimation;
     private final Animation<TextureRegion> cryAnimation;
     private int score;
+    private MazeRunnerGame game;
 
 
     /**
@@ -30,13 +32,21 @@ public class Hero extends Character {
      * @param x The initial x-coordinate of the hero's position.
      * @param y The initial y-coordinate of the hero's position.
      */
-    public Hero(float x, float y) {
+    public Hero(float x, float y, MazeRunnerGame game) {
         super(x, y, 40, 40);
-        try {
-            // Load the texture using a FileInputStream
-            Texture texture = new Texture(String.valueOf(new FileInputStream("character.png")));
+        this.game = game;
 
-            // Create animations using the helper method
+        try {
+            // Load texture using ClassLoader
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("character.png");
+            if (inputStream == null) {
+                throw new FileNotFoundException("character.png not found in resources.");
+            }
+
+            // Load texture with AssetManager (preferred for libGDX)
+            Texture texture = game.getAssetManager().get("character.png", Texture.class);
+
+            // Initialize animations
             this.leftAnimation = createAnimation(texture, 0, 96, 16, 32, 4, 0.1f);
             this.downAnimation = createAnimation(texture, 0, 0, 16, 32, 4, 0.1f);
             this.rightAnimation = createAnimation(texture, 0, 32, 16, 32, 4, 0.1f);

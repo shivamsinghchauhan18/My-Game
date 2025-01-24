@@ -66,7 +66,7 @@ public class MenuScreen implements Screen {
                 de.tum.cit.fop.maze.Enemy.enemyList.clear();
                 Trap.getTrapList().clear();
                 game.getMazeData().clear();
-                game.setHero(new Hero(0, 0));
+                game.setHero(new Hero(0, 0, game));
                 game.setScreen(new SelectMapScreen(game));
             }
         });

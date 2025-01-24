@@ -1,8 +1,14 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class Hero extends Character {
 
@@ -15,6 +21,7 @@ public class Hero extends Character {
     private float danceTimer;
     private final Animation<TextureRegion> danceAnimation;
     private final Animation<TextureRegion> cryAnimation;
+    private int score;
 
 
     /**
@@ -24,17 +31,41 @@ public class Hero extends Character {
      * @param y The initial y-coordinate of the hero's position.
      */
     public Hero(float x, float y) {
-        super(x,y,40,40);
-        this.keyCollected = false;
-        this.dead = false;
-        this.winner = false;
-        this.leftAnimation = loadHorizontalAnimation("character.png",0,96,16,32,4,0.1f);
-        this.downAnimation = loadHorizontalAnimation("character.png",0,0,16,32,4,0.1f);
-        this.rightAnimation = loadHorizontalAnimation("character.png",0,32,16,32,4,0.1f);
-        this.upAnimation = loadHorizontalAnimation("character.png",0,64,16,32,4,0.1f);
-        this.animation = loadHorizontalAnimation("character.png",0,0,16,32,1,0.1f);
-        this.cryAnimation = loadHorizontalAnimation("character.png",80,0,16,32,1,0.25f);
-        this.danceAnimation = loadHorizontalAnimation("character.png",96,0,16,32,2,0.25f);
+        super(x, y, 40, 40);
+        try {
+            // Load the texture using a FileInputStream
+            Texture texture = new Texture(String.valueOf(new FileInputStream("character.png")));
+
+            // Create animations using the helper method
+            this.leftAnimation = createAnimation(texture, 0, 96, 16, 32, 4, 0.1f);
+            this.downAnimation = createAnimation(texture, 0, 0, 16, 32, 4, 0.1f);
+            this.rightAnimation = createAnimation(texture, 0, 32, 16, 32, 4, 0.1f);
+            this.upAnimation = createAnimation(texture, 0, 64, 16, 32, 4, 0.1f);
+            this.animation = createAnimation(texture, 0, 0, 16, 32, 1, 0.1f);
+            this.cryAnimation = createAnimation(texture, 80, 0, 16, 32, 1, 0.25f);
+            this.danceAnimation = createAnimation(texture, 96, 0, 16, 32, 2, 0.25f);
+
+            // Initialize hero state
+            this.keyCollected = false;
+            this.dead = false;
+            this.winner = false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to load texture: character.png");
+        }
+    }
+
+    private Animation<TextureRegion> createAnimation(Texture texture, int startX, int startY, int frameWidth, int frameHeight, int frameCount, float frameDuration) {
+        TextureRegion[] frames = new TextureRegion[frameCount];
+
+        // Create frames by slicing the texture
+        for (int i = 0; i < frameCount; i++) {
+            frames[i] = new TextureRegion(texture, startX + (i * frameWidth), startY, frameWidth, frameHeight);
+        }
+
+        // Create and return an Animation
+        return new Animation<>(frameDuration, frames);
     }
 
     /**
@@ -95,6 +126,25 @@ public class Hero extends Character {
         setPrevY(y);
         y -= delta;
     }
+
+    public void collectKey(Key key) {
+        if (this.rect.overlaps(key.getRect())) { // Check collision
+            this.keyCollected = true;
+            System.out.println("Key collected!");
+            increaseScore(100); // Add 100 points for collecting the key
+        }
+    }
+
+
+    public void increaseScore(int points) {
+        this.score += points;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+
     // Getters & Setters
 
     public String getDirection() {

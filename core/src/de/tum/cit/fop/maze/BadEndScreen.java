@@ -30,20 +30,36 @@ public class BadEndScreen implements Screen {
      */
     public BadEndScreen(MazeRunnerGame game) {
         this.game = game;
-        var camera = new OrthographicCamera();
-        backgroundTexture = new Texture(Gdx.files.internal("assets/Gameover.jpeg"));
-        backgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        batch = new SpriteBatch();
+        this.batch = game.getSpriteBatch();
+        var camera = game.getCamera();
+        this.hero = game.getHero(); // Properly retrieve the hero from the game instance
+
+        // Load assets from AssetManager
+        this.backgroundTexture = game.getAssetManager().get("assets/Gameover.jpeg", Texture.class);
+
+        // Initialize stage and table
         Viewport viewport = new ScreenViewport(camera);
-        stage = new Stage(viewport, game.getSpriteBatch());
+        this.stage = new Stage(viewport, batch);
+        setupTable();
+    }
+
+    private void setupTable() {
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-        hero = game.getHero();
-        table.add(new Label(game.getLanguages().get("youlost"), game.getSkin(), "title")).padBottom(400).row();
+
+        table.add(new Label(game.getLanguages().get("youlost"), game.getSkin(), "title"))
+                .padBottom(400)
+                .row();
+
+        // Example: Display hero-related information (if needed)
+        if (hero != null) {
+            table.add(new Label("Final Score: " + hero.getScore(), game.getSkin())).padBottom(20).row();
+        }
 
         TextButton goToMenu = new TextButton(game.getLanguages().get("gomenu"), game.getSkin());
         table.add(goToMenu).width(400).padBottom(15).row();
+
         goToMenu.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -64,15 +80,35 @@ public class BadEndScreen implements Screen {
      */
 
     public void render(float delta) {
+        // Clear the screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Update stage logic
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+
+        // Set the projection matrix for the batch
         batch.setProjectionMatrix(stage.getCamera().combined);
+
+        // Draw the background
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
-        game.getSpriteBatch().begin();
-        game.getSpriteBatch().draw(hero.getCryAnimation().getKeyFrame(delta, true), (stage.getWidth()/2) - 70, (stage.getHeight()/2) - 130, 150,300);
-        game.getSpriteBatch().end();
+
+        // Track animation state time
+        hero.setDanceTimer(hero.getDanceTimer() + delta);
+
+        // Draw hero's cry animation
+        batch.begin();
+        batch.draw(
+                hero.getCryAnimation().getKeyFrame(hero.getDanceTimer(), true), // Use cumulative timer for animation
+                (stage.getWidth() / 2) - 70,
+                (stage.getHeight() / 2) - 130,
+                150,
+                300
+        );
+        batch.end();
+
+        // Draw the stage UI
         stage.draw();
     }
 

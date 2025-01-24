@@ -30,38 +30,51 @@ public class HUD extends Stage{
      */
     public HUD(Viewport viewport, Hero hero, MazeRunnerGame game) {
         super(viewport);
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-BoldItalic.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 30;  // Set the desired font size
-        BitmapFont customFont = generator.generateFont(parameter);// Adjust the scale factor as needed
 
-        livesLabel = new Label(game.getLanguages().get("lives"), new Label.LabelStyle(customFont, Color.WHITE));
-        keyStatusLabel = new Label(game.getLanguages().get("keystatusnotok"), new Label.LabelStyle(customFont, Color.WHITE));
-        vulnerability = new Label(game.getLanguages().get("shieldno"), new Label.LabelStyle(customFont, Color.WHITE));
+        // Cache font and texture resources from the game
+        BitmapFont customFont = game.getSkin().getFont("default-font"); // Use a preloaded font
+        Label.LabelStyle labelStyle = new Label.LabelStyle(customFont, Color.WHITE); // Reuse LabelStyle
 
-        // Set the position of the labels
-        livesLabel.setPosition(10, viewport.getWorldHeight() - 50);
-        keyStatusLabel.setPosition(10, viewport.getWorldHeight() - 110);
-        vulnerability.setPosition(10, viewport.getWorldHeight() - 170);
+        // Create labels
+        livesLabel = createLabel(game.getLanguages().get("lives"), labelStyle, 10, viewport.getWorldHeight() - 50);
+        keyStatusLabel = createLabel(game.getLanguages().get("keystatusnotok"), labelStyle, 10, viewport.getWorldHeight() - 110);
+        vulnerability = createLabel(game.getLanguages().get("shieldno"), labelStyle, 10, viewport.getWorldHeight() - 170);
 
         // Add UI elements to the stage
         addActor(livesLabel);
         addActor(keyStatusLabel);
         addActor(vulnerability);
+
+        // Assign Hero and Game references
         this.hero = hero;
         this.game = game;
-        Texture heartTexture = new Texture("objects.png");
-        this.livesTextures = new TextureRegion(heartTexture,64,0,16,16);
+
+        // Reuse cached texture from the game
+        Texture heartTexture = game.getAssetManager().get("objects.png", Texture.class); // Use preloaded texture
+        this.livesTextures = new TextureRegion(heartTexture, 64, 0, 16, 16);
+    }
+
+
+    private Label createLabel(String text, Label.LabelStyle style, float x, float y) {
+        Label label = new Label(text, style);
+        label.setPosition(x, y);
+        return label;
     }
 
     /**
      * Draws the heart icons representing the number of lives the hero has.
      */
-    public void drawLives(){
-        int x = 0;
+    public void drawLives() {
+        // Cache reusable values
+        float baseX = livesLabel.getWidth() + 15; // Starting X position
+        float baseY = livesLabel.getY() - 10;    // Y position for all icons
+        int spacing = 60;                        // Spacing between icons
+        float textureSize = 64;                  // Size of each heart texture
 
-        for (int i = 0; i < hero.getLives(); i++, x+=60) {
-            game.getSpriteBatch().draw(livesTextures, livesLabel.getWidth() +15+x, livesLabel.getY() - 10, 64, 64);
+        // Draw lives
+        for (int i = 0; i < hero.getLives(); i++) {
+            float currentX = baseX + (i * spacing); // Compute X position for the current heart
+            game.getSpriteBatch().draw(livesTextures, currentX, baseY, textureSize, textureSize);
         }
     }
 

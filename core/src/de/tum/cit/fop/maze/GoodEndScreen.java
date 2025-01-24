@@ -30,26 +30,43 @@ public class GoodEndScreen implements Screen {
      *
      * @param game The MazeRunnerGame instance.
      */
-    public GoodEndScreen(de.tum.cit.fop.maze.MazeRunnerGame game) {
+    public GoodEndScreen(MazeRunnerGame game) {
         this.game = game;
-        var camera = new OrthographicCamera();
-        backgroundTexture = new Texture(Gdx.files.internal("Winner.jpeg"));
-        backgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        batch = new SpriteBatch();
-        Viewport viewport = new ScreenViewport(camera);
-        stage = new Stage(viewport, game.getSpriteBatch());
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
-        hero = game.getHero();
-        table.add(new Label(game.getLanguages().get("youwon"), game.getSkin(), "title")).padBottom(400).row();
+        this.batch = game.getSpriteBatch(); // Reuse the game's shared SpriteBatch
+        var camera = game.getCamera();     // Reuse the game's shared camera
 
+        // Load background texture from AssetManager
+        this.backgroundTexture = game.getAssetManager().get("Winner.jpeg", Texture.class);
+
+        // Initialize stage with the camera and shared SpriteBatch
+        Viewport viewport = new ScreenViewport(camera);
+        this.stage = new Stage(viewport, batch);
+
+        this.hero = game.getHero(); // Retrieve the hero instance
+
+        setupTable(); // Delegate UI table creation to a helper method
+    }
+
+    private void setupTable() {
+        // Create a table for UI elements
+        Table table = new Table();
+        table.setFillParent(true); // Ensure the table covers the screen
+        stage.addActor(table);
+
+        // Add "You Won" label
+        table.add(new Label(game.getLanguages().get("youwon"), game.getSkin(), "title"))
+                .padBottom(400)
+                .row();
+
+        // Add "Go to Menu" button
         TextButton goToMenu = new TextButton(game.getLanguages().get("gomenu"), game.getSkin());
         table.add(goToMenu).width(400).padBottom(15).row();
+
+        // Add listener to navigate back to the menu
         goToMenu.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new de.tum.cit.fop.maze.MenuScreen(game));
+                game.setScreen(new MenuScreen(game)); // Navigate to the menu
                 game.getMusicLoader().stopWinningMusic();
                 if (!game.getMusicLoader().isForbiddenMenu()) {
                     game.getMusicLoader().playMenuMusic();
@@ -65,16 +82,19 @@ public class GoodEndScreen implements Screen {
      */
     @Override
     public void render(float delta) {
+        // Clear the screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Update stage logic
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+
+        // Draw the background
         batch.setProjectionMatrix(stage.getCamera().combined);
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
-        game.getSpriteBatch().begin();
-        hero.setDanceTimer(hero.getDanceTimer() + delta);
-        game.getSpriteBatch().draw(hero.getDanceAnimation().getKeyFrame(hero.getDanceTimer(), true), (stage.getWidth()/2) - 70, (stage.getHeight()/2) - 130, 150,300);
-        game.getSpriteBatch().end();
+
+        // Draw the stage
         stage.draw();
     }
 
@@ -97,14 +117,7 @@ public class GoodEndScreen implements Screen {
      */
     @Override
     public void dispose() {
-        // Dispose SpriteBatch and Skin
-        game.getSpriteBatch().dispose();
-        game.getSkin().dispose();
-        stage.dispose();
-        if (game.getScreen() != null) {
-            game.getScreen().hide();
-            game.getScreen().dispose();
-        }
+        stage.dispose(); // Dispose of the stage resources
     }
 
     /**

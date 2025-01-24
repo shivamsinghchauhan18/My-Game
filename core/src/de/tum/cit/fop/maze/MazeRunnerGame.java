@@ -2,14 +2,21 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
 import java.awt.*;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +46,9 @@ public class MazeRunnerGame extends Game{
     private de.tum.cit.fop.maze.MazeLoader mazeLoader;
     private de.tum.cit.fop.maze.Languages languages;
     private MusicLoader musicLoader;
+    private AssetManager assetManager;
+    private OrthographicCamera camera;
+    private long startTime;
 
     /**
      * Constructor for MazeRunnerGame.
@@ -85,8 +95,30 @@ public class MazeRunnerGame extends Game{
      */
     @Override
     public void create() {
-        spriteBatch = new SpriteBatch(); // Create SpriteBatch
-        skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
+        AssetManager assetManager = new AssetManager();
+        // Load essential assets here (e.g., UI skin, textures)
+        assetManager.load("assets/Gameover.jpeg", Texture.class);
+        assetManager.load("craft/craftacular-ui.json", Skin.class);
+        assetManager.load("objects.png", Texture.class); // Load the objects texture
+        // Optionally load other assets asynchronously
+        assetManager.finishLoading(); // Ensure assets are loaded before use
+        spriteBatch = new SpriteBatch();
+        skin = assetManager.get("craft/craftacular-ui.json", Skin.class);// Load UI skin
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 600); // Set default screen dimensions
+        spriteBatch = new SpriteBatch();
+        skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json"));
+
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-BoldItalic.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 30;
+        BitmapFont customFont = generator.generateFont(parameter);
+        skin.add("default-font", customFont); // Add font to the Skin
+        generator.dispose(); // Dispose of the generator
+
+
         this.allTiles = new Tiles();
         musicLoader.loadMusic(this);
         musicLoader.setVolumes();
@@ -102,6 +134,13 @@ public class MazeRunnerGame extends Game{
         goToMenu();
     }
 
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    public OrthographicCamera getCamera() {
+        return camera;
+    }
 
     /**
      * Switches to the menu screen.
@@ -137,18 +176,50 @@ public class MazeRunnerGame extends Game{
     public void renderMaze() {
         mazeLoader.renderMaze();
     }
+
+    public void startGame() {
+        startTime = System.currentTimeMillis();
+        hero = new Hero(100, 100); // Example position
+        key = new Key(300, 300); // Example position
+    }
+
+
+    public void updateGame(float delta) {
+        // Update hero and game objects
+        hero.update(delta);
+
+        // Check if the key is collected
+        if (!hero.isKeyCollected() && hero.getRect().overlaps(key.getRect())) {
+            hero.collectKey(key); // Collect the key
+        }
+    }
+
+
+    public void endGame() {
+        long endTime = System.currentTimeMillis();
+        int timeInSeconds = (int) ((endTime - startTime) / 1000); // Calculate elapsed time
+
+        // Calculate final score
+        int basePoints = 1000; // Maximum points for time
+        int timePenalty = timeInSeconds; // Deduct 1 point per second
+        int keyBonus = hero.isKeyCollected() ? 100 : 0; // Add 100 points if the key is collected
+
+        int finalScore = basePoints - timePenalty + keyBonus;
+
+        // Display final score
+        System.out.println("Final Score: " + finalScore);
+    }
+
+
     /**
      * Cleans up resources when the game is disposed.
      */
     @Override
     public void dispose() {
-        if (getScreen() != null) {
-            getScreen().hide();
-            getScreen().dispose();
+        if (assetManager != null) {
+            assetManager.dispose();
         }
-        // Dispose SpriteBatch and Skin
-        spriteBatch.dispose();
-        skin.dispose();
+        super.dispose();
     }
 
     // Getter methods

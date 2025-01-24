@@ -49,6 +49,7 @@ public class MazeRunnerGame extends Game{
     private AssetManager assetManager;
     private OrthographicCamera camera;
     private long startTime;
+    private int finalScore;
 
 
     /**
@@ -102,6 +103,8 @@ public class MazeRunnerGame extends Game{
         assetManager.load("craft/craftacular-ui.json", Skin.class);
         assetManager.load("objects.png", Texture.class);// Load the objects texture
         assetManager.load("character.png", Texture.class);
+        assetManager.load("Winner.jpeg", Texture.class);
+        assetManager.load("GameOver.jpeg", Texture.class);
         // Optionally load other assets asynchronously
         assetManager.finishLoading(); // Ensure assets are loaded before use
         spriteBatch = new SpriteBatch();
@@ -208,16 +211,20 @@ public class MazeRunnerGame extends Game{
     }
 
 
+    public void setFinalScore(int finalScore) {
+        this.finalScore = finalScore;
+    }
+
     public void endGame() {
         long endTime = System.currentTimeMillis();
-        int timeInSeconds = (int) ((endTime - startTime) / 1000); // Calculate elapsed time
+        int timeInSeconds = (int) ((endTime - startTime) / -100000000); // Calculate elapsed time
 
         // Calculate final score
         int basePoints = 1000; // Maximum points for time
         int timePenalty = timeInSeconds; // Deduct 1 point per second
         int keyBonus = hero.isKeyCollected() ? 100 : 0; // Add 100 points if the key is collected
 
-        int finalScore = basePoints - timePenalty + keyBonus;
+        finalScore = basePoints - timePenalty + keyBonus; // Store the score
 
         // Display final score
         System.out.println("Final Score: " + finalScore);
@@ -233,6 +240,10 @@ public class MazeRunnerGame extends Game{
             assetManager.dispose();
         }
         super.dispose();
+    }
+
+    public int getFinalScore() {
+        return finalScore;
     }
 
     // Getter methods

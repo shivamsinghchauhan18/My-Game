@@ -24,16 +24,18 @@ public class GoodEndScreen implements Screen {
     private final SpriteBatch batch;
     private final de.tum.cit.fop.maze.MazeRunnerGame game;
     private final Hero hero;
+    private final int finalScore;
 
     /**
      * Constructs a GoodEndScreen with the specified MazeRunnerGame instance.
      *
      * @param game The MazeRunnerGame instance.
      */
-    public GoodEndScreen(MazeRunnerGame game) {
+    public GoodEndScreen(MazeRunnerGame game, int finalScore) {
         this.game = game;
         this.batch = game.getSpriteBatch(); // Reuse the game's shared SpriteBatch
-        var camera = game.getCamera();     // Reuse the game's shared camera
+        var camera = game.getCamera();// Reuse the game's shared camera
+        this.finalScore = finalScore;
 
         // Load background texture from AssetManager
         this.backgroundTexture = game.getAssetManager().get("Winner.jpeg", Texture.class);
@@ -55,7 +57,12 @@ public class GoodEndScreen implements Screen {
 
         // Add "You Won" label
         table.add(new Label(game.getLanguages().get("youwon"), game.getSkin(), "title"))
-                .padBottom(400)
+                .padBottom(50)
+                .row();
+
+        // Add score label
+        table.add(new Label("Your Score: " + finalScore, game.getSkin(), "default"))
+                .padBottom(200)
                 .row();
 
         // Add "Go to Menu" button

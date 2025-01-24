@@ -22,17 +22,19 @@ public class BadEndScreen implements Screen {
     private final SpriteBatch batch;
     private final MazeRunnerGame game;
     private final Hero hero;
+    private final int finalScore;
 
     /**
      * Constructs a BadEndScreen with the specified MazeRunnerGame instance.
      *
      * @param game The MazeRunnerGame instance.
      */
-    public BadEndScreen(MazeRunnerGame game) {
+    public BadEndScreen(MazeRunnerGame game, int finalScore) {
         this.game = game;
         this.batch = game.getSpriteBatch();
         var camera = game.getCamera();
         this.hero = game.getHero(); // Properly retrieve the hero from the game instance
+        this.finalScore = finalScore;
 
         // Load assets from AssetManager
         this.backgroundTexture = game.getAssetManager().get("assets/Gameover.jpeg", Texture.class);
@@ -49,13 +51,18 @@ public class BadEndScreen implements Screen {
         stage.addActor(table);
 
         table.add(new Label(game.getLanguages().get("youlost"), game.getSkin(), "title"))
-                .padBottom(400)
+                .padBottom(50)
+                .row();
+
+        // Add score label
+        table.add(new Label("Your Score: " + finalScore, game.getSkin(), "default"))
+                .padBottom(200)
                 .row();
 
         // Example: Display hero-related information (if needed)
-        if (hero != null) {
-            table.add(new Label("Final Score: " + hero.getScore(), game.getSkin())).padBottom(20).row();
-        }
+//        if (hero != null) {
+//            table.add(new Label("Final Score: " + hero.getScore(), game.getSkin())).padBottom(20).row();
+//        }
 
         TextButton goToMenu = new TextButton(game.getLanguages().get("gomenu"), game.getSkin());
         table.add(goToMenu).width(400).padBottom(15).row();

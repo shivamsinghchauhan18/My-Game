@@ -96,6 +96,7 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
+        game.updateGame(delta);
         if (hero.getLives() ==0){
             hero.setDead(true);
         }
@@ -161,15 +162,24 @@ public class GameScreen implements Screen {
         hud.setShield(!isVulnerable);
         hud.draw();
         if (hero.isWinner()) {
-            game.setScreen(new GoodEndScreen(game));
+            game.endGame(); // Calculate and display the final score
+            int finalScore = game.getFinalScore(); // Retrieve the calculated score
+            game.setScreen(new GoodEndScreen(game, finalScore)); // Transition to Winner Screen
+
+            // Stop and transition music
             game.getMusicLoader().stopGameMusic();
             game.getMusicLoader().stopMenuMusic();
             if (!game.getMusicLoader().isForbiddenGame()) {
                 game.getMusicLoader().playWinningMusic();
             }
         }
-        if (hero.isDead()) {
-            game.setScreen((Screen) new BadEndScreen(game));
+        else if (hero.isDead()) {
+            int loseScore = 0;
+            game.endGame(); // Calculate and display the final score
+            int finalScore = loseScore; // Retrieve the calculated score (likely 0 for losing)
+            game.setScreen(new BadEndScreen(game, finalScore)); // Transition to Loser Screen
+
+            // Stop and transition music
             game.getMusicLoader().stopGameMusic();
             game.getMusicLoader().stopMenuMusic();
             if (!game.getMusicLoader().isForbiddenGame()) {
@@ -181,6 +191,8 @@ public class GameScreen implements Screen {
             pauseScreen();
         }
     }
+
+
 
     /**
      * Displays the pause screen using the stage for UI elements.

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -24,6 +25,16 @@ public class Hero extends Character {
     private final Animation<TextureRegion> cryAnimation;
     private int score;
     private MazeRunnerGame game;
+    private float jumpStartY; // The Y-coordinate where the jump started
+    private float jumpMaxY;   // The maximum Y-coordinate during the jump
+
+
+    private boolean isJumping = false; // Indicates if the hero is jumping
+    private boolean isFalling = false; // Indicates if the hero is falling
+    private float jumpVelocity = 100;  // Initial velocity of the jump
+    private float gravity = 200;       // Gravity acceleration
+    private float groundLevel;         // The Y-coordinate of the ground
+    private float maxJumpHeight;       // Maximum height the hero can reach during a jump
 
 
     /**
@@ -35,6 +46,8 @@ public class Hero extends Character {
     public Hero(float x, float y, MazeRunnerGame game) {
         super(x, y, 40, 40);
         this.game = game;
+        this.groundLevel = y;          // Set the initial ground level to the starting Y-coordinate
+        this.maxJumpHeight = groundLevel + 150; // Example max jump height
 
         try {
             // Load texture using ClassLoader
@@ -142,6 +155,132 @@ public class Hero extends Character {
             this.keyCollected = true;
             System.out.println("Key collected!");
             increaseScore(100); // Add 100 points for collecting the key
+        }
+    }
+
+    public void startJump() {
+        if (!isJumping && !isFalling) {
+            isJumping = true;
+            jumpStartY = y; // Store the current Y-coordinate
+
+            // Restrict max jump height near the top boundary
+            float mazeTopBoundary = game.getMazeLoader().getTop().y;
+            if (y + 2 > mazeTopBoundary - 2) {
+                // Restrict to 2 units below the top boundary
+                jumpMaxY = mazeTopBoundary - 2;
+            } else {
+                jumpMaxY = jumpStartY + 50; // Normal max height for jump
+            }
+        }
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public MazeRunnerGame getGame() {
+        return game;
+    }
+
+    public void setGame(MazeRunnerGame game) {
+        this.game = game;
+    }
+
+    public boolean isJumping() {
+        return isJumping;
+    }
+
+    public void setJumping(boolean jumping) {
+        isJumping = jumping;
+    }
+
+    public boolean isFalling() {
+        return isFalling;
+    }
+
+    public void setFalling(boolean falling) {
+        isFalling = falling;
+    }
+
+    public float getJumpVelocity() {
+        return jumpVelocity;
+    }
+
+    public void setJumpVelocity(float jumpVelocity) {
+        this.jumpVelocity = jumpVelocity;
+    }
+
+    public float getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getGroundLevel() {
+        return groundLevel;
+    }
+
+    public void setGroundLevel(float groundLevel) {
+        this.groundLevel = groundLevel;
+    }
+
+    public float getMaxJumpHeight() {
+        return maxJumpHeight;
+    }
+
+    public void setMaxJumpHeight(float maxJumpHeight) {
+        this.maxJumpHeight = maxJumpHeight;
+    }
+
+    public void updateJump(float delta) {
+        if (isJumping) {
+            // Move upward
+            y += 50 * delta; // Adjust the speed of the ascent
+            if (y >= jumpMaxY) {
+                y = jumpMaxY;  // Snap to the peak
+                isJumping = false;
+                isFalling = true; // Start falling
+            }
+        } else if (isFalling) {
+            // Move downward
+            y -= 50 * delta; // Adjust the speed of the descent
+
+            // Ensure the hero doesn't fall below the ground
+            if (y <= jumpStartY) {
+                y = jumpStartY; // Snap back to the starting position
+                isFalling = false; // End the jump
+            }
+        }
+
+        // Prevent the hero from exceeding maze boundaries
+        if (y > game.getMazeLoader().getTop().y) {
+            y = game.getMazeLoader().getTop().y; // Clamp to maze top boundary
+            isJumping = false;
+            isFalling = true;
+        }
+    }
+
+    public void checkJumpCollision(MazeLoader mazeLoader) {
+        for (Rectangle platform : mazeLoader.getPlatforms()) {
+            if (getRect().overlaps(platform)) {
+                // If jumping up, stop at the platform
+                if (isJumping && y + rect.height <= platform.y) {
+                    y = platform.y - rect.height; // Snap to the bottom of the platform
+                    isJumping = false;
+                    isFalling = true;
+                    break;
+                }
+                // If falling, land on the platform
+                if (isFalling && y >= platform.y) {
+                    y = platform.y + platform.height; // Snap to the top of the platform
+                    isFalling = false;
+                    jumpVelocity = 300; // Reset velocity
+                    groundLevel = platform.y + platform.height; // Update ground level
+                    break;
+                }
+            }
         }
     }
 

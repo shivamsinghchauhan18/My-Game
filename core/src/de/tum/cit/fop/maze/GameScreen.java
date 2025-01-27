@@ -97,6 +97,27 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         game.updateGame(delta);
+
+        if (!isResumed()) {
+            hero.setDirection(determineDirection());
+            hero.update(delta);
+
+            // Update jump logic
+            hero.updateJump(delta);
+
+            // Check collisions during jump
+            hero.checkJumpCollision(mazeLoader);
+
+            if (!isVulnerable) {
+                vulnerabilityTimer -= delta;
+                if (vulnerabilityTimer < 0f) {
+                    setVulnerable(true);
+                    vulnerabilityTimer = 2f;
+                }
+            }
+        }
+
+
         if (hero.getLives() ==0){
             hero.setDead(true);
         }
@@ -125,6 +146,8 @@ public class GameScreen implements Screen {
                 }
             }
         }
+        game.renderMaze(); // Existing maze rendering
+        mazeLoader.renderPlatforms(); // Add platform rendering
         enemyCollision();
         checkCollisions();
         game.getKey().update(delta);
@@ -214,6 +237,8 @@ public class GameScreen implements Screen {
         String direction = "";
 
         float speed = 200;
+        float delta = 0.016f;
+
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             speed = 400;
             setCameraSpeed(4f);
@@ -256,10 +281,64 @@ public class GameScreen implements Screen {
                 hero.moveUp(speed * Gdx.graphics.getDeltaTime());
             }
         }
+
+        // **Add Jump Functionality**
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)) {
+            hero.startJump(); // Start the jump
+        }
+
+        // Update hero's jump during movement
+        hero.updateJump(Gdx.graphics.getDeltaTime()); // Apply jump physics
+
+        // Handle Horizontal Movement During Jump
+        if (hero.isJumping() || hero.isFalling()) {
+            // If Right key is pressed during jump
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+                float newX = hero.getX() + speed * Gdx.graphics.getDeltaTime();
+                if (checkHeroMovement(newX, hero.getY())) {
+                    hero.setX(newX);
+                }
+            }
+
+            // If Left key is pressed during jump
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+                float newX = hero.getX() - speed * Gdx.graphics.getDeltaTime();
+                if (checkHeroMovement(newX, hero.getY())) {
+                    hero.setX(newX);
+                }
+            }
+        }
+        if (hero.isJumping() || hero.isFalling()) {
+            // Horizontal movement during jump
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+                float newX = hero.x + 100 * delta; // Adjust speed
+                if (checkHeroMovement(newX, hero.y)) {
+                    hero.x = newX;
+                }
+            } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+                float newX = hero.x - 100 * delta; // Adjust speed
+                if (checkHeroMovement(newX, hero.y)) {
+                    hero.x = newX;
+                }
+            }
+
+            // Prevent horizontal movement from exceeding maze boundaries
+            Rectangle mazeRight = game.getMazeLoader().getRight();
+            Rectangle mazeLeft = game.getMazeLoader().getLeft();
+
+            if (hero.x < mazeLeft.x) {
+                hero.x = mazeLeft.x; // Clamp to the left boundary
+            }
+            if (hero.x + hero.getRect().width > mazeRight.x) {
+                hero.x = mazeRight.x - hero.getRect().width; // Clamp to the right boundary
+            }
+        }
+
         hero.setRect(new Rectangle(hero.getX(),hero.getY(), hero.rect.width, hero.rect.height));
 
         return direction;
     }
+
 
     /**
      * Updates the camera according to the hero's coordinates.

@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -17,6 +18,7 @@ public class MazeLoader {
     private Rectangle right;
     private Rectangle bottom;
     private Rectangle left;
+    private final ArrayList<Rectangle> platforms = new ArrayList<>();
 
     /**
      * Constructor for MazeLoader.
@@ -128,6 +130,10 @@ public class MazeLoader {
                 case 5:
                     game.setKey(new Key(x+10,y+10));
                     break;
+
+                case 6: // Platform type
+                    platforms.add(new Rectangle(x, y, 60, 10)); // A platform with dimensions 60x10
+                    break;
             }
         }
     }
@@ -146,6 +152,18 @@ public class MazeLoader {
             }
             game.getSpriteBatch().end();
         }
+    }
+
+    public void renderPlatforms() {
+        for (Rectangle platform : platforms) {
+            game.getSpriteBatch().begin();
+            game.getSpriteBatch().draw(game.getAllTiles().getPlatform(), platform.x, platform.y, platform.width, platform.height);
+            game.getSpriteBatch().end();
+        }
+    }
+
+    public ArrayList<Rectangle> getPlatforms() {
+        return platforms;
     }
 
     public Rectangle getBottom() {

@@ -16,6 +16,8 @@ public class Tiles {
     private Texture basictiles; // Texture containing basic tiles
     private static final Array<Rectangle> wallRectangles = new Array<>(); // Array to store wall rectangles
 
+    private TextureRegion platform; // Texture region for platform tiles
+
     /**
      * Constructs a new Tiles instance and loads textures for walls and grass tiles.
      */
@@ -23,6 +25,15 @@ public class Tiles {
         this.basictiles = new Texture(Gdx.files.internal("basictiles.png"));
         this.wall = new TextureRegion(basictiles, 0, 0, 16, 16);
         this.grass = new TextureRegion(basictiles, 0, 16* 8, 16, 16);
+        this.platform = new TextureRegion(basictiles, 16, 16 * 8, 16, 16); // Example platform texture location
+    }
+
+    public TextureRegion getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(TextureRegion platform) {
+        this.platform = platform;
     }
 
     public TextureRegion getWall() {

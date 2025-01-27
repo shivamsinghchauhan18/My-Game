@@ -165,9 +165,9 @@ public class Hero extends Character {
 
             // Restrict max jump height near the top boundary
             float mazeTopBoundary = game.getMazeLoader().getTop().y;
-            if (y + 2 > mazeTopBoundary - 2) {
+            if (y + 2 > mazeTopBoundary - 100) {
                 // Restrict to 2 units below the top boundary
-                jumpMaxY = mazeTopBoundary - 2;
+                jumpMaxY = mazeTopBoundary - 100;
             } else {
                 jumpMaxY = jumpStartY + 50; // Normal max height for jump
             }

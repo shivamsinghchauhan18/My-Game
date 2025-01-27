@@ -238,6 +238,7 @@ public class GameScreen implements Screen {
 
         float speed = 200;
         float delta = 0.016f;
+        float horizontalJumpSpeed = 30f;
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             speed = 400;
@@ -284,7 +285,10 @@ public class GameScreen implements Screen {
 
         // **Add Jump Functionality**
         if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)) {
-            hero.startJump(); // Start the jump
+            if (checkHeroMovement(hero.getX() +5 , hero.getY() + speed * Gdx.graphics.getDeltaTime()+40) &&
+                    checkHeroMovement(hero.getX() + 35, hero.getY() - speed * Gdx.graphics.getDeltaTime()+40)) {
+                hero.startJump(); // Start the jump only if there's no wall above
+            }
         }
 
         // Update hero's jump during movement
@@ -294,17 +298,21 @@ public class GameScreen implements Screen {
         if (hero.isJumping() || hero.isFalling()) {
             // If Right key is pressed during jump
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-                float newX = hero.getX() + speed * Gdx.graphics.getDeltaTime();
-                if (checkHeroMovement(newX, hero.getY())) {
+                float newX = hero.getX() - horizontalJumpSpeed * delta;
+                if (checkHeroMovement(hero.getX()+speed * Gdx.graphics.getDeltaTime()+55, hero.getY()+10)&&
+                        checkHeroMovement(hero.getX()+speed * Gdx.graphics.getDeltaTime()+55, hero.getY()+30)) {
                     hero.setX(newX);
                 }
             }
 
             // If Left key is pressed during jump
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-                float newX = hero.getX() - speed * Gdx.graphics.getDeltaTime();
-                if (checkHeroMovement(newX, hero.getY())) {
-                    hero.setX(newX);
+                float newX = hero.getX() + horizontalJumpSpeed * delta; // Limit horizontal speed
+                if (checkHeroMovement(hero.getX()-speed * Gdx.graphics.getDeltaTime(), hero.getY()+5)&&
+                        checkHeroMovement(hero.getX()-speed * Gdx.graphics.getDeltaTime(), hero.getY()+35)) {
+                    hero.moveLeft(speed * Gdx.graphics.getDeltaTime()); {
+                        hero.setX(newX);
+                    }
                 }
             }
         }
@@ -312,12 +320,14 @@ public class GameScreen implements Screen {
             // Horizontal movement during jump
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
                 float newX = hero.x + 100 * delta; // Adjust speed
-                if (checkHeroMovement(newX, hero.y)) {
+                if (checkHeroMovement(hero.getX()+speed * Gdx.graphics.getDeltaTime()+55, hero.getY()+10)&&
+                        checkHeroMovement(hero.getX()+speed * Gdx.graphics.getDeltaTime()+55, hero.getY()+30)) {
                     hero.x = newX;
                 }
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
                 float newX = hero.x - 100 * delta; // Adjust speed
-                if (checkHeroMovement(newX, hero.y)) {
+                if (checkHeroMovement(hero.getX()-speed * Gdx.graphics.getDeltaTime(), hero.getY()+5)&&
+                        checkHeroMovement(hero.getX()-speed * Gdx.graphics.getDeltaTime(), hero.getY()+35)) {
                     hero.x = newX;
                 }
             }
